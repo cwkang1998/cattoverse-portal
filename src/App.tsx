@@ -7,16 +7,25 @@ const TWITTER_HANDLE = "_buildspace";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
 const App = () => {
-  const { connect } = useSolanaWeb3();
+  const { address, connect } = useSolanaWeb3();
+
+  const renderNotConnectedContainer = () => {
+    return (
+      <button className="cta-button connect-wallet-button" onClick={connect}>
+        Connect to Wallet
+      </button>
+    );
+  };
 
   return (
     <div className="App">
-      <div className="container">
+      <div className={address ? "authed-container" : "container"}>
         <div className="header-container">
           <p className="header">🖼 GIF Portal</p>
           <p className="sub-text">
             View your GIF collection in the metaverse ✨
           </p>
+          {!address && renderNotConnectedContainer()}
         </div>
         <div className="footer-container">
           <img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
