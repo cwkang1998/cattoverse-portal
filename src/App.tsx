@@ -1,11 +1,14 @@
-import twitterLogo from './assets/twitter-logo.svg';
-import './App.css';
-
+import twitterLogo from "./assets/twitter-logo.svg";
+import "./App.css";
+import { useSolanaWeb3 } from "./hooks/useSolanaWeb3";
+import { useEffect } from "react";
 // Constants
-const TWITTER_HANDLE = '_buildspace';
+const TWITTER_HANDLE = "_buildspace";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
 const App = () => {
+  const { connect } = useSolanaWeb3();
+
   return (
     <div className="App">
       <div className="container">
