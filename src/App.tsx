@@ -9,7 +9,7 @@ const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
 const App = () => {
   const { address, provider, connect } = useSolanaWeb3();
-  const { error, program, createAccount, sendGif, getGifList } =
+  const { error, createAccount, sendGif, getGifList } =
     useSolanaProgram(provider);
   const [inputVal, setInputVal] = useState("");
   const [gifList, setGifList] = useState<{ gifLink: string }[]>([]);
