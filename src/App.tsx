@@ -1,37 +1,59 @@
 import { useEffect, useState } from "react";
 import twitterLogo from "./assets/twitter-logo.svg";
 import "./App.css";
-import { useSolanaWeb3 } from "./hooks/useSolanaWeb3";
+import { useSolanaProgram, useSolanaWeb3 } from "./hooks/useSolanaWeb3";
 
 // Constants
 const TWITTER_HANDLE = "_buildspace";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
-const TEST_GIFS = [
-  "https://media.giphy.com/media/jpbnoe3UIa8TU8LM13/giphy.gif",
-  "https://media.giphy.com/media/13CoXDiaCcCoyk/giphy.gif",
-  "https://media.giphy.com/media/VbnUQpnihPSIgIXuZv/giphy.gif",
-  "https://media.giphy.com/media/mlvseq9yvZhba/giphy.gif",
-];
 
 const App = () => {
-  const { address, connect } = useSolanaWeb3();
+  const { address, provider, connect } = useSolanaWeb3();
+  const { error, program, createAccount, sendGif, getGifList } =
+    useSolanaProgram(provider);
   const [inputVal, setInputVal] = useState("");
-  const [gifList, setGifList] = useState<string[]>([]);
+  const [gifList, setGifList] = useState<{ gifLink: string }[]>([]);
 
   useEffect(() => {
-    if (address) {
-      console.log("Fetching gif list...");
-      setGifList(TEST_GIFS);
-    }
-  }, [address]);
+    const getData = async () => {
+      if (address) {
+        console.log("Fetching gif list...");
+        try {
+          const res = await getGifList();
+          if (res) {
+            setGifList(res);
+          } else {
+            setGifList([]);
+          }
+        } catch (err) {
+          console.error("Failed to get gif list:", err);
+          setGifList([]);
+        }
+      }
+    };
+    getData();
+  }, [address, getGifList]);
 
   const onInputChange = (e: any) => {
     setInputVal(e.target.value);
   };
 
-  const onSubmitGif = () => {
+  const onSubmitGif = async () => {
     if (inputVal.length > 0) {
       console.log("Gif link:", inputVal);
+      await sendGif(inputVal);
+      setInputVal("");
+
+      // After submitting get new data
+      try {
+        const res = await getGifList();
+        if (res) {
+          console.log(res);
+          setGifList(res);
+        }
+      } catch (err) {
+        console.error("Failed to get gif list:", err);
+      }
     } else {
       console.log("Empty input, try again.");
     }
@@ -46,6 +68,18 @@ const App = () => {
   };
 
   const renderConnectedContainer = () => {
+    if (error) {
+      return (
+        <div className="connected-container">
+          <button
+            className="cta-button submit-gif-button"
+            onClick={createAccount}
+          >
+            Do One-Time Initialization For GIF Program Account
+          </button>
+        </div>
+      );
+    }
     return (
       <div className="connected-container">
         <form
@@ -66,9 +100,9 @@ const App = () => {
         </form>
 
         <div className="gif-grid">
-          {gifList.map((gif) => (
-            <div className="gif-item" key={gif}>
-              <img src={gif} alt={gif} />
+          {gifList.map(({ gifLink }) => (
+            <div className="gif-item" key={gifLink}>
+              <img src={gifLink} alt={gifLink} />
             </div>
           ))}
         </div>
